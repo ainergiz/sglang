@@ -680,7 +680,7 @@ class TestGoldenModelOverrides(_IsolatedPublish):
     def test_mimo_v2_declarations(self):
         # Callable-level golden: MiMoV2 archs are hybrid (config-shape heavy),
         # so the declaration is pinned directly for both provider inputs.
-        from sglang.srt.arg_groups.overrides import _mimo_v2_overrides
+        from sglang.srt.arg_groups.model_overrides.mimo_v2 import _mimo_v2_overrides
 
         def _args(**kw):
             defaults = dict(speculative_algorithm=None, moe_runner_backend="auto")
@@ -697,7 +697,7 @@ class TestGoldenModelOverrides(_IsolatedPublish):
 
     def test_mimo_v2_sm100_fp8_pins_flashinfer_trtllm_moe(self):
         """Blackwell FP8 must not be left on the triton fused-MoE runner."""
-        from sglang.srt.arg_groups.overrides import _mimo_v2_overrides
+        from sglang.srt.arg_groups.model_overrides.mimo_v2 import _mimo_v2_overrides
 
         def _args(**kw):
             defaults = dict(speculative_algorithm=None, moe_runner_backend="auto")
@@ -768,7 +768,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
         )
 
     def test_nemotron_h_w4a16_moe_uses_marlin_on_sm100(self):
-        from sglang.srt.arg_groups.overrides import _nemotron_h_overrides
+        from sglang.srt.arg_groups.model_overrides.nemotron_h import (
+            _nemotron_h_overrides,
+        )
 
         server_args, hf_config = self._nemotron_h_args(
             quantized_layers={
@@ -798,7 +800,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
             )
 
     def test_nemotron_h_nvfp4_moe_keeps_flashinfer_trtllm_on_sm100(self):
-        from sglang.srt.arg_groups.overrides import _nemotron_h_overrides
+        from sglang.srt.arg_groups.model_overrides.nemotron_h import (
+            _nemotron_h_overrides,
+        )
 
         server_args, hf_config = self._nemotron_h_args(
             quantized_layers={
@@ -828,7 +832,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
             )
 
     def test_nemotron_h_speculation_uses_arch_specific_attention_on_blackwell(self):
-        from sglang.srt.arg_groups.overrides import _nemotron_h_overrides
+        from sglang.srt.arg_groups.model_overrides.nemotron_h import (
+            _nemotron_h_overrides,
+        )
 
         cases = {
             True: {
@@ -864,7 +870,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
                         self.assertEqual(overrides[key], value)
 
     def test_nemotron_h_sm100_speculative_draft_backend_matrix(self):
-        from sglang.srt.arg_groups.overrides import _nemotron_h_overrides
+        from sglang.srt.arg_groups.model_overrides.nemotron_h import (
+            _nemotron_h_overrides,
+        )
 
         for algorithm in ("EAGLE", "NEXTN", "DSPARK"):
             with self.subTest(algorithm=algorithm):
@@ -896,7 +904,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
         self.assertNotIn("speculative_draft_attention_backend", overrides)
 
     def test_nemotron_h_sm100_speculation_preserves_explicit_cache_and_draft(self):
-        from sglang.srt.arg_groups.overrides import _nemotron_h_overrides
+        from sglang.srt.arg_groups.model_overrides.nemotron_h import (
+            _nemotron_h_overrides,
+        )
 
         server_args, hf_config = self._nemotron_h_args(quantized_layers={})
         server_args.speculative_algorithm = "DSPARK"
@@ -916,7 +926,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
         self.assertNotIn("speculative_draft_attention_backend", overrides)
 
     def test_nemotron_h_sm100_topk_tree_falls_back_to_triton(self):
-        from sglang.srt.arg_groups.overrides import _nemotron_h_overrides
+        from sglang.srt.arg_groups.model_overrides.nemotron_h import (
+            _nemotron_h_overrides,
+        )
 
         server_args, hf_config = self._nemotron_h_args(quantized_layers={})
         server_args.speculative_algorithm = "EAGLE"
@@ -934,7 +946,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
         self.assertNotIn("mamba_radix_cache_strategy", overrides)
 
     def test_nemotron_h_target_only_sm120_defers_to_generic_attention_default(self):
-        from sglang.srt.arg_groups.overrides import _nemotron_h_overrides
+        from sglang.srt.arg_groups.model_overrides.nemotron_h import (
+            _nemotron_h_overrides,
+        )
 
         server_args, hf_config = self._nemotron_h_args(quantized_layers={})
 
@@ -947,7 +961,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
             )
 
     def test_nemotron_h_target_only_sm100_uses_trtllm_mha(self):
-        from sglang.srt.arg_groups.overrides import _nemotron_h_overrides
+        from sglang.srt.arg_groups.model_overrides.nemotron_h import (
+            _nemotron_h_overrides,
+        )
 
         server_args, hf_config = self._nemotron_h_args(quantized_layers={})
 
@@ -961,7 +977,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
             )
 
     def test_nemotron_h_explicit_split_attention_backend_wins(self):
-        from sglang.srt.arg_groups.overrides import _nemotron_h_overrides
+        from sglang.srt.arg_groups.model_overrides.nemotron_h import (
+            _nemotron_h_overrides,
+        )
 
         server_args, hf_config = self._nemotron_h_args(quantized_layers={})
         server_args.speculative_algorithm = "DFLASH"
@@ -977,7 +995,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
         self.assertNotIn("speculative_draft_attention_backend", overrides)
 
     def test_nemotron_h_w4a16_moe_rejects_a2a_backend(self):
-        from sglang.srt.arg_groups.overrides import _nemotron_h_overrides
+        from sglang.srt.arg_groups.model_overrides.nemotron_h import (
+            _nemotron_h_overrides,
+        )
 
         server_args, hf_config = self._nemotron_h_args(
             quantized_layers={
@@ -993,7 +1013,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
             _nemotron_h_overrides(server_args, hf_config)
 
     def test_nemotron_h_w4a16_moe_rejects_non_marlin_runner(self):
-        from sglang.srt.arg_groups.overrides import _nemotron_h_overrides
+        from sglang.srt.arg_groups.model_overrides.nemotron_h import (
+            _nemotron_h_overrides,
+        )
 
         server_args, hf_config = self._nemotron_h_args(
             quantized_layers={
@@ -1053,7 +1075,7 @@ class TestGoldenModelOverrides(_IsolatedPublish):
         self.assertTrue((self._publish(sa), self._leaf("disable_hybrid_swa_memory"))[1])
 
     def test_exaone_without_pattern_declares_nothing(self):
-        from sglang.srt.arg_groups.overrides import _exaone_overrides
+        from sglang.srt.arg_groups.model_overrides.exaone import _exaone_overrides
 
         self.assertEqual(
             _exaone_overrides(None, SimpleNamespace(sliding_window_pattern=None)),
@@ -1081,7 +1103,7 @@ class TestGoldenModelOverrides(_IsolatedPublish):
         self.assertEqual((self._publish(sa), self._leaf("dtype"))[1], "auto")
 
     def test_gpt_oss_xpu_dtype_validation_reads_pristine(self):
-        from sglang.srt.arg_groups.overrides import _gpt_oss_overrides
+        from sglang.srt.arg_groups.model_overrides.gpt_oss import _gpt_oss_overrides
 
         with patch.object(overrides_module, "is_xpu", return_value=True):
             with self.assertRaises(NotImplementedError):
@@ -1459,7 +1481,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
             )
 
     def test_deepseek_v4_overrides_at_callable_level(self):
-        from sglang.srt.arg_groups.overrides import _deepseek_v4_overrides
+        from sglang.srt.arg_groups.model_overrides.deepseek_v4 import (
+            _deepseek_v4_overrides,
+        )
         from sglang.srt.server_args import ServerArgs
 
         hf = SimpleNamespace(architectures=["DeepseekV4ForCausalLM"])
@@ -1572,7 +1596,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
         )
 
     def test_nemotron_h_overrides_at_callable_level(self):
-        from sglang.srt.arg_groups.overrides import _nemotron_h_overrides
+        from sglang.srt.arg_groups.model_overrides.nemotron_h import (
+            _nemotron_h_overrides,
+        )
 
         def _hf(quant_algo="NVFP4", *, include_quantization_config=True):
             hf = SimpleNamespace(
@@ -1926,7 +1952,7 @@ class TestGoldenModelOverrides(_IsolatedPublish):
                 _cutedsl_prefill_backend_fill(_view())
 
     def test_moss_vl_overrides_at_callable_level(self):
-        from sglang.srt.arg_groups.overrides import _moss_vl_overrides
+        from sglang.srt.arg_groups.model_overrides.moss_vl import _moss_vl_overrides
 
         def _args(**kw):
             defaults = dict(
@@ -2217,7 +2243,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
         )
 
     def test_qwen3_5_hybrid_coupled_declaration(self):
-        from sglang.srt.arg_groups.overrides import _qwen3_5_hybrid_overrides
+        from sglang.srt.arg_groups.model_overrides.qwen3_5_hybrid import (
+            _qwen3_5_hybrid_overrides,
+        )
 
         def _args(default_backend, **kw):
             defaults = dict(
@@ -2282,7 +2310,7 @@ class TestGoldenModelOverrides(_IsolatedPublish):
             self.assertEqual(_qwen3_5_hybrid_overrides(_args("fa3"), None), {})
 
     def test_qwen3vl_page_size(self):
-        from sglang.srt.arg_groups.overrides import _qwen3vl_overrides
+        from sglang.srt.arg_groups.model_overrides.qwen3vl import _qwen3vl_overrides
 
         with patch.object(overrides_module, "is_hip", return_value=True):
             with patch("sglang.srt.environ.envs.SGLANG_USE_AITER_UNIFIED_ATTN") as e:
@@ -2355,7 +2383,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
             )
 
     def test_m3_fp8_attn_gemm_resolution(self):
-        from sglang.srt.arg_groups.overrides import _minimax_m3_overrides
+        from sglang.srt.arg_groups.model_overrides.minimax_m3 import (
+            _minimax_m3_overrides,
+        )
         from sglang.srt.server_args import m3_fp8_attn_gemm_enabled
 
         def _args(**kw):
@@ -2709,7 +2739,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
         )
 
     def test_deepseek_family_order_safe_declarations(self):
-        from sglang.srt.arg_groups.overrides import _deepseek_family_overrides
+        from sglang.srt.arg_groups.model_overrides.deepseek_family import (
+            _deepseek_family_overrides,
+        )
 
         def _args(**kw):
             defaults = dict(
@@ -2808,7 +2840,9 @@ class TestGoldenModelOverrides(_IsolatedPublish):
                 self.assertEqual(_deepseek_family_overrides(_args(), None), {})
 
     def test_qwen3_moe_family_quant_absorption(self):
-        from sglang.srt.arg_groups.overrides import _qwen3_moe_family_overrides
+        from sglang.srt.arg_groups.model_overrides.qwen3_moe_family import (
+            _qwen3_moe_family_overrides,
+        )
 
         with patch.object(overrides_module, "is_sm100_supported", return_value=True):
             with patch.object(
@@ -2833,7 +2867,7 @@ class TestGoldenModelOverrides(_IsolatedPublish):
             self.assertEqual(_qwen3_moe_family_overrides(None, None), {})
 
     def test_step3p_declarations_at_callable_level(self):
-        from sglang.srt.arg_groups.overrides import _step3p_overrides
+        from sglang.srt.arg_groups.model_overrides.step3p import _step3p_overrides
 
         def _args(**kw):
             defaults = dict(
